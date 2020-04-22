@@ -28,8 +28,8 @@ fontsize=10
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>190</x>
-      <y>310</y>
+      <x>40</x>
+      <y>320</y>
       <w>170</w>
       <h>90</h>
     </coordinates>
@@ -46,9 +46,9 @@ fontsize=10
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>450</x>
-      <y>100</y>
-      <w>300</w>
+      <x>210</x>
+      <y>120</y>
+      <w>170</w>
       <h>90</h>
     </coordinates>
     <panel_attributes>Query
@@ -63,10 +63,10 @@ fontsize=10
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>760</x>
-      <y>80</y>
-      <w>370</w>
-      <h>150</h>
+      <x>380</x>
+      <y>90</y>
+      <w>160</w>
+      <h>80</h>
     </coordinates>
     <panel_attributes>Database
 -
@@ -79,9 +79,9 @@ fontsize=10
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>150</x>
-      <y>80</y>
-      <w>290</w>
+      <x>0</x>
+      <y>90</y>
+      <w>190</w>
       <h>120</h>
     </coordinates>
     <panel_attributes>Schema
@@ -92,7 +92,6 @@ fontsize=10
 - name : String
 -
 + Schema(createTable: String) &lt;&lt;ctor&gt;&gt;
-- parseFields : String[]
 
 </panel_attributes>
     <additional_attributes/>
@@ -100,8 +99,8 @@ fontsize=10
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>270</x>
-      <y>190</y>
+      <x>120</x>
+      <y>200</y>
       <w>30</w>
       <h>140</h>
     </coordinates>
@@ -111,23 +110,34 @@ fontsize=10
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>430</x>
-      <y>70</y>
-      <w>350</w>
+      <x>180</x>
+      <y>80</y>
+      <w>220</w>
       <h>30</h>
     </coordinates>
-    <panel_attributes>lt=&lt;-</panel_attributes>
-    <additional_attributes>330.0;10.0;10.0;10.0</additional_attributes>
+    <panel_attributes>lt=&lt;-&gt;</panel_attributes>
+    <additional_attributes>200.0;10.0;10.0;10.0</additional_attributes>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>350</x>
-      <y>180</y>
-      <w>120</w>
-      <h>150</h>
+      <x>200</x>
+      <y>200</y>
+      <w>30</w>
+      <h>140</h>
     </coordinates>
     <panel_attributes>lt=&lt;-</panel_attributes>
-    <additional_attributes>10.0;130.0;100.0;10.0</additional_attributes>
+    <additional_attributes>10.0;120.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>180</x>
+      <y>190</y>
+      <w>50</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-</panel_attributes>
+    <additional_attributes>10.0;10.0;30.0;10.0</additional_attributes>
   </element>
 </diagram>
