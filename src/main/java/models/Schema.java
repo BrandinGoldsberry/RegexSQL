@@ -3,12 +3,11 @@ package models;
 public class Schema {
 	private String[] fields;
 	private String lineFormat;
-	private String name;
+
 	
-	public Schema(String[] fields, String lineFormat, String name) {
+	public Schema(String[] fields, String lineFormat) {
 		setFields(fields);
 		setLineFormat(lineFormat);
-		setName(name);
 	}
 	
 	public String[] getFields() {
@@ -25,13 +24,5 @@ public class Schema {
 
 	public void setLineFormat(String lineFormat) {
 		this.lineFormat = lineFormat;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
 	}
 }

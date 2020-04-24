@@ -3,10 +3,13 @@ package models;
 public class Table {
 	private Schema schema;
 	private String[][] data;
+	private String file;
+	private String name;
 	
-	public Table(Schema schema, String data) {
+	public Table(Schema schema, String file, String name) {
 		setSchema(schema);
-		parseData(data);
+		setFile(file);
+		setName(name);
 	}
 
 	public Schema getSchema() {
@@ -25,7 +28,23 @@ public class Table {
 		this.data = data;
 	}
 	
-	private void parseData(String data) {
+	public String getFile() {
+		return file;
+	}
+
+	public void setFile(String file) {
+		this.file = file;
+	}
+	
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public void LoadTable() {
 		
 	}
 }

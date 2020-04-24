@@ -10,8 +10,8 @@ import models.*;
 public class Database {
 	private static Dictionary<String, Table> tables;
 	
-	private static void Save(Table table) {
-		
+	public static void Save(Table table) {
+		tables.put(table.getName(), table);
 	}
 	
 	public static void LoadTables() {
