@@ -1,5 +1,6 @@
 package controllers;
 
+import java.util.ArrayList;
 import java.util.regex.*;
 
 import models.*;
@@ -17,7 +18,15 @@ public class Query {
 			String Reg = match.group("lineformat");
 			create(Fields, File, Name, Reg);
 		} else {
+			//select regex test and basic info
+			String selectPatternStr = "SELECT\\s(?<fields>(?>\\w+(?>,\\s)?)*)[\\s\\r\\n]FROM\\s(?<tablename>[A-Za-z]+)(?>[\\s\\r\\n])";
 			
+			Pattern selectPattern = Pattern.compile(selectPatternStr);
+			match = selectPattern.matcher(query);
+			
+			if(match.find()) {
+				select(query, match.group("fields"), match.group("tablename"));
+			}
 		}
 	}
 	
@@ -27,11 +36,25 @@ public class Query {
 		Database.Save(table);
 	}
 	
-	private static void select(String query) {
+	private static void select(String query, String fields, String tablename) {
+		String limiterPatternString = "(?>(?<keyword>WHERE|AND|OR)\\s(?<feild>\\w+(?>,\\s)?)\\s(?<operator>>=|=|<=)\\s'(?<argument>.*)'[\\s\\r\\n]?)";
 		
+		Pattern limiterPattern = Pattern.compile(limiterPatternString);
+		Matcher match = limiterPattern.matcher(query);
+		
+		ArrayList<SelectQuery> queries = new ArrayList<SelectQuery>();
+		
+		while(match.find()) {
+			SelectQuery sq = new SelectQuery(match.group("keyword"), match.group("operator"), match.group("argument"), match.group("field"));
+			queries.add(sq);
+		}
+		
+		String[] splitFields = fields.split(", ");
+		Table toSelect = Database.GetTable(tablename);
+		where((SelectQuery[])queries.toArray(), splitFields, toSelect);
 	}
 	
-	private static void where(String query) {
+	private static void where(SelectQuery[] queries, String[] fields, Table table) {
 		
 	}
 }
