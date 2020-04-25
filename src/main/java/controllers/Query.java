@@ -4,6 +4,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Hashtable;
 import java.util.regex.*;
@@ -59,10 +60,24 @@ public class Query {
 			
 			String[] splitFields = fields.split(", ");
 			Table toSelect = Database.GetTable(tablename);
+			
+			for (String str : splitFields) {
+				if(!Arrays.asList(toSelect.getSchema().getFields()).contains(str)) {
+					throw new IllegalArgumentException("Column " + str + " not in table");
+				}
+			}
+			
 			where(queries.toArray(new SelectQuery[queries.size()]), splitFields, toSelect);
 		} else {
 			String[] splitFields = fields.split(", ");
 			Table t = Database.GetTable(tablename);
+			
+			for (String str : splitFields) {
+				if(!Arrays.asList(t.getSchema().getFields()).contains(str)) {
+					throw new IllegalArgumentException("Column " + str + " not in table");
+				}
+			}
+			
 			String[] SchemaFields = t.getSchema().getFields();
 			Hashtable<String, String[]> data = t.getData();
 			ArrayList<String> selectedColumns = new ArrayList<String>();
