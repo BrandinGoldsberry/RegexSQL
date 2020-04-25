@@ -19,8 +19,8 @@ import models.Table;
 
 public class JSQLTesting {
 	
-	//@Test
-	public void TableCreationAndSelection() {
+	@Test
+	public void SelectionTestNoWhere() {
 		//arrange
 		String createTable = ConsoleIO.promptForInput("Enter Query For Table", false);
 		String selectTable = ConsoleIO.promptForInput("Enter Query For Select", false);
@@ -30,6 +30,7 @@ public class JSQLTesting {
 		Query.Execute(selectTable);
 		
 		//assert
+		//again, the only good way to test this is to watch the output of the console
 	}
 	
 	//@Test
@@ -68,7 +69,7 @@ public class JSQLTesting {
 		assertEquals(correctReg, actualReg);
 	}
 	
-	@Test
+	//@Test
 	public void LoadTable() {
 		//arrange
 		String query = ConsoleIO.promptForInput("Input Query", false);

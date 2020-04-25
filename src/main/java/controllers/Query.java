@@ -1,6 +1,7 @@
 package controllers;
 
 import java.util.ArrayList;
+import java.util.Hashtable;
 import java.util.regex.*;
 
 import models.*;
@@ -19,7 +20,7 @@ public class Query {
 			create(Fields, File, Name, Reg);
 		} else {
 			//select regex test and basic info
-			String selectPatternStr = "SELECT\\s(?<fields>(?>\\w+(?>,\\s)?)*)[\\s\\r\\n]FROM\\s(?<tablename>[A-Za-z]+)(?>[\\s\\r\\n])";
+			String selectPatternStr = "SELECT\\s(?<fields>(?>\\w+(?>,\\s)?)*)[\\s\\r\\n]FROM\\s(?<tablename>[A-Za-z]+)(?>[\\s\\r\\n])?";
 			
 			Pattern selectPattern = Pattern.compile(selectPatternStr);
 			match = selectPattern.matcher(query);
@@ -37,21 +38,63 @@ public class Query {
 	}
 	
 	private static void select(String query, String fields, String tablename) {
-		String limiterPatternString = "(?>(?<keyword>WHERE|AND|OR)\\s(?<feild>\\w+(?>,\\s)?)\\s(?<operator>>=|=|<=)\\s'(?<argument>.*)'[\\s\\r\\n]?)";
-		
-		Pattern limiterPattern = Pattern.compile(limiterPatternString);
-		Matcher match = limiterPattern.matcher(query);
-		
-		ArrayList<SelectQuery> queries = new ArrayList<SelectQuery>();
-		
-		while(match.find()) {
-			SelectQuery sq = new SelectQuery(match.group("keyword"), match.group("operator"), match.group("argument"), match.group("field"));
-			queries.add(sq);
+		if(query.contains("WHERE")) {
+			String limiterPatternString = "(?>(?<keyword>WHERE|AND|OR)\\s(?<feild>\\w+(?>,\\s)?)\\s(?<operator>>=|=|<=)\\s'(?<argument>.*)'[\\s\\r\\n]?)";
+			
+			Pattern limiterPattern = Pattern.compile(limiterPatternString);
+			Matcher match = limiterPattern.matcher(query);
+			
+			ArrayList<SelectQuery> queries = new ArrayList<SelectQuery>();
+			
+			while(match.find()) {
+				SelectQuery sq = new SelectQuery(match.group("keyword"), match.group("operator"), match.group("argument"), match.group("field"));
+				queries.add(sq);
+			}
+			
+			String[] splitFields = fields.split(", ");
+			Table toSelect = Database.GetTable(tablename);
+			where(queries.toArray(new SelectQuery[queries.size()]), splitFields, toSelect);
+		} else {
+			String[] splitFields = fields.split(", ");
+			Table t = Database.GetTable(tablename);
+			String[] SchemaFields = t.getSchema().getFields();
+			Hashtable<String, String[]> data = t.getData();
+			ArrayList<String> selectedColumns = new ArrayList<String>();
+			ArrayList<ArrayList<String>> rowData = new ArrayList<ArrayList<String>>();
+			
+			for (int i = 0; i < SchemaFields.length; i++) {
+				for (int j = 0; j < splitFields.length; j++) {
+					if(SchemaFields[i].equals(splitFields[j])) {
+						selectedColumns.add(SchemaFields[i]);		
+						rowData.add(new ArrayList<String>());
+					}
+				}
+			}
+			
+			for (int i = 0; i < data.get(selectedColumns.get(0)).length; i++) {				
+				for (int j = 0; j < selectedColumns.size(); j++) {
+					String toAdd = data.get(selectedColumns.get(j))[i];
+					rowData.get(i).add(toAdd);
+				}
+			}
+			
+			StringBuilder formatBuilder = new StringBuilder();
+			for (String field : selectedColumns) {
+				formatBuilder.append("%-20s ");
+			}
+			
+			StringBuilder sb = new StringBuilder();
+			
+			sb.append(String.format(formatBuilder.toString(), selectedColumns.toArray()));
+			sb.append("\r\n");
+			
+			for (ArrayList<String> dataList : rowData) {
+				sb.append(String.format(formatBuilder.toString(), (Object[]) dataList.toArray()));
+				sb.append("\r\n");
+			}
+			
+			System.out.println(sb.toString());
 		}
-		
-		String[] splitFields = fields.split(", ");
-		Table toSelect = Database.GetTable(tablename);
-		where((SelectQuery[])queries.toArray(), splitFields, toSelect);
 	}
 	
 	private static void where(SelectQuery[] queries, String[] fields, Table table) {
