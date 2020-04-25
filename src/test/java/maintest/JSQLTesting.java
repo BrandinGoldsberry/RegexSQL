@@ -19,7 +19,38 @@ import models.Table;
 
 public class JSQLTesting {
 	
-	@Test
+	//@Test
+	public void DetectType() {
+		//arrange
+		String input = "05-6-2103";
+		Pattern dateReg = Pattern.compile("(\\d{4}[-\\/\\\\\\s]\\d{1,2}[-\\/\\\\\\s]\\d{1,2}|\\d{1,2}[-\\/\\\\\\s]\\d{1,2}[-\\/\\\\\\s]\\d{4})");
+		Pattern intReg = Pattern.compile("^[^\\D]+$");
+		
+		//act
+		Matcher dateMatch = dateReg.matcher(input);
+		Matcher intMatch = intReg.matcher(input);
+		
+		//test
+		assertEquals(false, intMatch.find());
+		assertEquals(true, dateMatch.find());
+	}
+	
+	
+	//@Test
+	public void SelectionTestWithWhere() {
+		//arrange
+		String createTable = ConsoleIO.promptForInput("Enter Query For Table", false);
+		String selectTable = ConsoleIO.promptForInput("Enter Query For Select", false);
+		
+		//act
+		Query.Execute(createTable);
+		Query.Execute(selectTable);
+		
+		//assert
+		//again, the only good way to test this is to watch the output of the console
+	}
+	
+	//@Test
 	public void SelectionTestNoWhere() {
 		//arrange
 		String createTable = ConsoleIO.promptForInput("Enter Query For Table", false);

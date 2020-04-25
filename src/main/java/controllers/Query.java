@@ -1,6 +1,10 @@
 package controllers;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Hashtable;
 import java.util.regex.*;
 
@@ -39,7 +43,7 @@ public class Query {
 	
 	private static void select(String query, String fields, String tablename) {
 		if(query.contains("WHERE")) {
-			String limiterPatternString = "(?>(?<keyword>WHERE|AND|OR)\\s(?<feild>\\w+(?>,\\s)?)\\s(?<operator>>=|=|<=)\\s'(?<argument>.*)'[\\s\\r\\n]?)";
+			String limiterPatternString = "(?>(?<keyword>WHERE|AND|OR)\\s(?<feild>\\w+(?>,\\s)?)\\s(?<operator>>=|=|<=|<|>)\\s'(?<argument>.*)'[\\s\\r\\n]?)";
 			
 			Pattern limiterPattern = Pattern.compile(limiterPatternString);
 			Matcher match = limiterPattern.matcher(query);
@@ -99,5 +103,29 @@ public class Query {
 	
 	private static void where(SelectQuery[] queries, String[] fields, Table table) {
 		
+	}
+	
+	private static Object resolveType(String input) {
+		Pattern dateReg = Pattern.compile("\\d{1,2}[\\]\\d{1,2}[\\]\\d{4}");
+		Pattern intReg = Pattern.compile("^[^\\D]+$");
+
+		Matcher dateMatch = dateReg.matcher(input);
+		Matcher intMatch = intReg.matcher(input);
+		
+		if(dateMatch.find()) {
+			DateFormat dateFormat = new SimpleDateFormat("mm\\dd\\yyyy");
+			try {
+				Date newDate = dateFormat.parse(input);
+				return newDate;
+			} catch (ParseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		} else if(intMatch.find()) {
+			return Integer.parseInt(input);
+		} else {
+			return input;
+		}
+		return input;
 	}
 }
