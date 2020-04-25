@@ -36,7 +36,7 @@ public class JSQLTesting {
 	}
 	
 	
-	//@Test
+	@Test
 	public void SelectionTestWithWhere() {
 		//arrange
 		String createTable = ConsoleIO.promptForInput("Enter Query For Table", false);
