@@ -31,6 +31,8 @@ public class Query {
 			
 			if(match.find()) {
 				select(query, match.group("fields"), match.group("tablename"));
+			} else {
+				throw new IllegalArgumentException("Query did not match create or select syntax");
 			}
 		}
 	}
@@ -43,7 +45,7 @@ public class Query {
 	
 	private static void select(String query, String fields, String tablename) {
 		if(query.contains("WHERE")) {
-			String limiterPatternString = "(?>(?<keyword>WHERE|AND|OR)\\s(?<field>\\w+(?>,\\s)?)\\s(?<operator>>=|=|<=|<|>)\\s'(?<argument>.*)'[\\s\\r\\n]?)";
+			String limiterPatternString = "(?>(?<keyword>WHERE|AND|OR)\\s(?<field>\\w+(?>,\\s)?)\\s(?<operator>>=|=|<=|<|>)\\s'(?<argument>.*?)'[\\s\\r\\n]?)";
 			
 			Pattern limiterPattern = Pattern.compile(limiterPatternString);
 			Matcher match = limiterPattern.matcher(query);
@@ -135,13 +137,13 @@ public class Query {
 
 		ArrayList<Integer> remove = new ArrayList<Integer>();
 		for (int i = 0; i < rowData.size(); i++) {
-			int queryColumn = selectedColumns.indexOf(queries[0].getField());
-			if(queryColumn == -1) {
-				throw new IllegalArgumentException("Where did not contain selected column");
-			}
-			String toComp = rowData.get(i).get(queryColumn);
 			boolean keep = true;
 			for (int j = 0; j < queries.length; j++) {
+				int queryColumn = selectedColumns.indexOf(queries[j].getField());
+				if(queryColumn == -1) {
+					throw new IllegalArgumentException("Clause did not contain selected column");
+				}
+				String toComp = rowData.get(i).get(queryColumn);
 				String switchCase = queries[j].getKeyword();
 				switch(switchCase) {
 				case "WHERE":
@@ -160,7 +162,7 @@ public class Query {
 			}
 		}
 		
-		for (int i = 0; i < rowData.size(); i++) {
+		for (int i = 0; i < remove.size(); i++) {
 			int toRemove = remove.get(i) - i;
 			rowData.remove(toRemove);			
 		}
@@ -175,6 +177,11 @@ public class Query {
 	
 	private static boolean removeData(SelectQuery sq, String data) {
 		Object check = resolveType(data);
+		Object checkAgainst = resolveType(sq.getArgument());
+		
+		if(!(checkAgainst.getClass() == check.getClass())) {
+			throw new IllegalArgumentException("Argument mismatched with column");
+		}
 		
 		if(check instanceof String) {
 			if(!sq.getOperator().equals("=")) {
@@ -183,50 +190,38 @@ public class Query {
 				return sq.getArgument().equals(check);
 			}
 		} else if(check instanceof Date) {
-			Object checkAgainst;
 			switch(sq.getOperator()) {
 			case "=":
-				checkAgainst = resolveType(sq.getArgument());
 				if(!(checkAgainst instanceof Date)) { throw new IllegalArgumentException("Type Comparison MisMatch"); }
 				return ((Date) check).compareTo((Date) checkAgainst) == 0;
 			case "<=":
-				checkAgainst = resolveType(sq.getArgument());
 				if(!(checkAgainst instanceof Date)) { throw new IllegalArgumentException("Type Comparison MisMatch"); }
 				return ((Date) check).compareTo((Date) checkAgainst) <= 0;
 			case ">=":
-				checkAgainst = resolveType(sq.getArgument());
 				if(!(checkAgainst instanceof Date)) { throw new IllegalArgumentException("Type Comparison MisMatch"); }
 				return ((Date) check).compareTo((Date) checkAgainst) >= 0;
 			case ">":
-				checkAgainst = resolveType(sq.getArgument());
 				if(!(checkAgainst instanceof Date)) { throw new IllegalArgumentException("Type Comparison MisMatch"); }
 				return ((Date) check).compareTo((Date) checkAgainst) > 0;
 			case "<":
-				checkAgainst = resolveType(sq.getArgument());
 				if(!(checkAgainst instanceof Date)) { throw new IllegalArgumentException("Type Comparison MisMatch"); }
 				return ((Date) check).compareTo((Date) checkAgainst) < 0;
 			}
 		} else if(check instanceof Integer) {
-			Object checkAgainst;
 			switch(sq.getOperator()) {
 			case "=":
-				checkAgainst = resolveType(sq.getArgument());
 				if(!(checkAgainst instanceof Integer)) { throw new IllegalArgumentException("Type Comparison MisMatch"); }
 				return ((Integer)check).intValue() == ((Integer)checkAgainst).intValue();
 			case "<=":
-				checkAgainst = resolveType(sq.getArgument());
 				if(!(checkAgainst instanceof Integer)) { throw new IllegalArgumentException("Type Comparison MisMatch"); }
 				return ((Integer)check).intValue() <= ((Integer)checkAgainst).intValue();
 			case ">=":
-				checkAgainst = resolveType(sq.getArgument());
 				if(!(checkAgainst instanceof Integer)) { throw new IllegalArgumentException("Type Comparison MisMatch"); }
 				return ((Integer)check).intValue() >= ((Integer)checkAgainst).intValue();
 			case ">":
-				checkAgainst = resolveType(sq.getArgument());
 				if(!(checkAgainst instanceof Integer)) { throw new IllegalArgumentException("Type Comparison MisMatch"); }
 				return ((Integer)check).intValue() > ((Integer)checkAgainst).intValue();
 			case "<":
-				checkAgainst = resolveType(sq.getArgument());
 				if(!(checkAgainst instanceof Integer)) { throw new IllegalArgumentException("Type Comparison MisMatch"); }
 				return ((Integer)check).intValue() < ((Integer)checkAgainst).intValue();
 			}
@@ -235,14 +230,14 @@ public class Query {
 	}
 	
 	private static Object resolveType(String input) {
-		Pattern dateReg = Pattern.compile("\\d{1,2}\\\\d{1,2}\\\\d{4}");
+		Pattern dateReg = Pattern.compile("^\\d{1,2}\\/\\d{1,2}\\/\\d{4}$");
 		Pattern intReg = Pattern.compile("^[^\\D]+$");
 
 		Matcher dateMatch = dateReg.matcher(input);
 		Matcher intMatch = intReg.matcher(input);
 		
 		if(dateMatch.find()) {
-			DateFormat dateFormat = new SimpleDateFormat("mm\\dd\\yyyy");
+			DateFormat dateFormat = new SimpleDateFormat("mm/dd/yyyy");
 			try {
 				Date newDate = dateFormat.parse(input);
 				return newDate;

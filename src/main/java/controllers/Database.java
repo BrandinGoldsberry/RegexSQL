@@ -27,6 +27,10 @@ public class Database {
 	public static Table GetTable(String name) {
 		Table ret = tables.get(name);
 		
+		if(ret == null) {
+			throw new IllegalArgumentException("Table does not exist");
+		}
+		
 		ArrayList<ArrayList<String>> rowData = new ArrayList<ArrayList<String>>();
 		ArrayList<ArrayList<String>> data = new ArrayList<ArrayList<String>>();
 		
